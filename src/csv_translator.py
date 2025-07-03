@@ -1,3 +1,6 @@
+# Translate the first column of csv as original to languages from header by language code
+
+
 # Dependencies installation
 # pip install googletrans
 
@@ -9,20 +12,22 @@ import csv
 
 
 # Configuration
-START_LINE_ABS = 60
-END_LINE_ABS = 60
+INPUT_FILE_PATH = "translations.csv"
+OUTPUT_FILE_PATH = "translations_out.csv"
+START_LINE_ABS = 1
+END_LINE_ABS = 64
 IS_WRITE_SKIPPED_ROWS = True
 SKIP_LANGUAGES = ["", "original", "emoji"]
 
 
 # Open files
-infile = open('translations.csv', encoding='utf-8')
-outfile = open('translations_out.csv', 'w', encoding='utf-8', newline='')
+infile = open(INPUT_FILE_PATH, encoding='utf-8')
+outfile = open(OUTPUT_FILE_PATH, 'w', encoding='utf-8', newline='')
 
 
 # Transfer header
 reader = csv.reader(infile)
-writer = csv.writer(outfile)
+writer = csv.writer(outfile, quoting=csv.QUOTE_MINIMAL)
 header = next(reader)
 writer.writerow(header)
 
@@ -40,15 +45,19 @@ async def main():
 	for row in reader:
 		row_number += 1
 		
-		# Row skipping
+		# Row skipping by selection and by emptyness
 		if (row_number + 1 < START_LINE_ABS) or \
-				(row_number + 1 > END_LINE_ABS):
+				(row_number + 1 > END_LINE_ABS) or \
+				(len(row) < 1) or (row[0] == ""):
 			if IS_WRITE_SKIPPED_ROWS:
 				writer.writerow(row)
 			continue
 		
 		# Get original
 		orig = row[0]
+		
+		# Desanitize original
+		orig = orig.replace("\\n", "\n")
 		
 		# Translate to next language
 		language_number = -1
@@ -72,6 +81,9 @@ async def main():
 			# Translete
 			translated = await translator.translate(orig, src='en', dest=language)
 			text = translated.text
+			
+			# Sanitize translation original
+			text = text.replace("\n", "\\n")
 			
 			# Write to the row
 			if len(row) <= language_number:
