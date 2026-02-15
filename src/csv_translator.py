@@ -12,10 +12,10 @@ from googletrans import Translator
 # Configuration
 # -------------------------
 
-INPUT_FILE_PATH = "translations.csv"
+INPUT_FILE_PATH = "to_translation.txt"
 OUTPUT_FILE_PATH = "translations_out.csv"
 
-CSV_DELIMITER = ";"  # <-- change this to "," or ";" as needed
+CSV_DELIMITER = ","  # <-- change this to "," or ";" as needed
 
 START_LINE_ABS = 1
 END_LINE_ABS = 64
